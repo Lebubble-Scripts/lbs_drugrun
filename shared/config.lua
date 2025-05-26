@@ -6,6 +6,7 @@ Config.Framework = 'qb'     -- 'qbx', 'qb',
 
 
 if Config.Framework == 'qb' then
+    print('[FRAMEWORK] ^5Deteced QBCore Framework^7')
     QBCore = exports['qb-core']:GetCoreObject()
 end
 
