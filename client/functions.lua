@@ -1,7 +1,30 @@
-local boxObj = nil
-local carryingAnimDict = 'anim@heists@box_carry@';
-local carryingAnimName = 'idle';
-local boxModel = 'hei_prop_heist_box';
+function CleanupMission()
+    if truck then
+        DeleteVehicle(truck)
+        truck = nil
+    end
+    if pickupBlip then
+        RemoveBlip(pickupBlip)
+        pickupBlip = nil
+    end
+    if deliveryBlip then
+        RemoveBlip(deliveryBlip)
+        deliveryBlip = nil
+    end
+    missionActive = false
+    if boxObj then 
+        DeleteEntity(boxObj)
+        boxObj = nil
+    end
+    if palletObj then 
+        DeleteEntity(palletObj)
+        palletObj = nil
+    end
+    if IsEntityPlayingAnim(PlayerPedId(), carryingAnimDict, carryingAnimName) then
+        ClearPedTasks(PlayerPedId())
+    end
+end
+
 
 function getPlayer(source)
     if Config.Framework == 'qb' then
@@ -13,6 +36,16 @@ function getPlayer(source)
     end
 end
 
+
+function SpawnPalletProp(propCoords)
+    RequestModel(weedPallet)
+    while not HasModelLoaded(weedPallet) do
+        Wait(1)
+    end
+
+    palletObj = CreateObject(weedPallet, propCoords.x, propCoords.y, propCoords.z - 1, true, true, false)
+    return palletObj
+end
 
 function IsCarryingBox()
     return boxObj ~= nil 
@@ -78,3 +111,5 @@ function EnsureCarryAnim()
         end
     end
 end
+
+

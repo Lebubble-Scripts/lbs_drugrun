@@ -1,27 +1,6 @@
-local missionActive = false
-local truck = nil
-local pickupBlip = nil
-local deliveryBlip = nil
-local hasArrivedAtPickup = false
+local randomIndex = math.random(1, #Config.Locations)
+local loc = Config.Locations[randomIndex]
 
-local pickupCoords = vector3(1983.02, 3777.55, 32.18)
-local deliveryCoords = vector3(1677.92, 3281.74, 40.83)
-
-function CleanupMission()
-    if truck then
-        DeleteVehicle(truck)
-        truck = nil
-    end
-    if pickupBlip then
-        RemoveBlip(pickupBlip)
-        pickupBlip = nil
-    end
-    if deliveryBlip then
-        RemoveBlip(deliveryBlip)
-        deliveryBlip = nil
-    end
-    missionActive = false
-end
 
 RegisterNetEvent('lbs_drugrun:client:startMission', function()
     if missionActive then 
@@ -33,8 +12,11 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
         return
     end
 
+    --ensure varaibles are reset, TODO: move to a function
     missionActive = true
     hasArrivedAtPickup = false
+    boxesPickedUp = 0
+    boxesToPickUp = 1
 
     -- Request model and ensure it's loaded
     local vehicleHash = GetHashKey('mule')
@@ -44,13 +26,13 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     end
 
     -- Spawn the truck at the pickup location
-    truck = CreateVehicle(vehicleHash, pickupCoords.x, pickupCoords.y, pickupCoords.z, true, false)
+    truck = CreateVehicle(vehicleHash, loc.pickupCoords.x, loc.pickupCoords.y, loc.pickupCoords.z, true, false)
     TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', GetVehicleNumberPlateText(truck))
     SetEntityAsMissionEntity(truck, true, true)
     SetVehicleDoorsLocked(truck, 1)
 
     -- Add a blip for the pickup location
-    pickupBlip = AddBlipForCoord(pickupCoords)
+    pickupBlip = AddBlipForCoord(loc.pickupCoords)
     SetBlipSprite(pickupBlip, 477)
     SetBlipColour(pickupBlip, 2)
     SetBlipScale(pickupBlip, 0.8)
@@ -65,8 +47,44 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     })
 
     -- Spawn the pickup box 
+    print("Spawning pallet at: ", loc.propCoords)
+    local palletObj = SpawnPalletProp(loc.propCoords)
 
-    -- Move box(es) to the truck 
+    exports.ox_target:addLocalEntity(palletObj, {
+        {
+            name = "pickupBox",
+            icon = "fa-solid fa-box",
+            label = "Load Weed Box",
+            onSelect = function()
+                if IsCarryingBox() then
+                    lib.notify({
+                        title = "Weed Run",
+                        description = "You are already carrying a box.",
+                        type = "error"
+                    })
+                    return
+                end
+                print('missionActive: ', missionActive)
+                if not missionActive then return end 
+                if boxesPickedUp < boxesToPickUp then
+                    StartCarryingBox()
+                    lib.notify({
+                        title = "Weed Run",
+                        description = ("Box picked up! Load it into the truck!"):format(boxesPickedUp, boxesToPickUp),
+                        type = "success"
+                    })
+                elseif boxesPickedUp >= boxesToPickUp then
+                    lib.notify({
+                        title = "Weed Run",
+                        description = "You have already picked up all the boxes.",
+                        type = "error"
+                    })
+                    return
+                end
+
+            end,
+        }
+    })
 
     -- ensure boxes are loaded
 
@@ -81,8 +99,8 @@ CreateThread(function()
 
         -- add check to ensure boxes are loaded into truck 
         if pickupBlip then 
-            local dist = #(pcoords - pickupCoords)
-            if dist < 5.0 and not hasArrivedAtPickup then
+            local dist = #(pcoords - loc.pickupCoords)
+            if dist < 20.0 and not hasArrivedAtPickup then
                 hasArrivedAtPickup = true
                 lib.notify({
                     title = "Weed Run",
@@ -90,12 +108,41 @@ CreateThread(function()
                     type = "info"
                 })
             end
+            
+            if IsCarryingBox() and truck  then 
+                local truckCoords = GetEntityCoords(truck)
+                local dist = #(GetEntityCoords(PlayerPedId()) - truckCoords)
 
-            if hasArrivedAtPickup and IsPedInVehicle(ped, truck, false) then
+                if dist < 3.0 then 
+                    lib.showTextUI("[E] Load box into truck")
+                    if IsControlJustPressed(0, 38) then
+                        StopCarryingBox()
+                        boxesPickedUp = boxesPickedUp + 1
+                        lib.notify({
+                            title = "Weed Run",
+                            description = ("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp),
+                            type = "success"
+                        })
+                        if boxesPickedUp >= boxesToPickUp then
+                            lib.notify({
+                                title = "Weed Run",
+                                description = "You have loaded all the boxes. Get in the truck and deliver to the destination.",
+                                type = "success"
+                            })
+                        end
+                    end
+                else
+                    lib.hideTextUI()
+                end
+            else
+                lib.hideTextUI()
+            end
+
+            if hasArrivedAtPickup and boxesPickedUp >= boxesToPickUp and IsPedInVehicle(ped, truck, true) then
                 RemoveBlip(pickupBlip)
                 pickupBlip = nil
 
-                deliveryBlip = AddBlipForCoord(deliveryCoords)
+                deliveryBlip = AddBlipForCoord(loc.deliveryCoords)
                 SetBlipSprite(deliveryBlip, 478)
                 SetBlipColour(deliveryBlip, 5)
                 SetBlipScale(deliveryBlip, 0.8)
@@ -110,7 +157,7 @@ CreateThread(function()
             end
         end
 
-        if deliveryBlip and IsPedInVehicle(ped, truck, false) and #(pcoords - deliveryCoords) < 5.0 then 
+        if deliveryBlip and IsPedInVehicle(ped, truck, false) and #(pcoords - loc.deliveryCoords) < 5.0 then 
             RemoveBlip(deliveryBlip)
             deliveryBlip = nil
             lib.notify({
