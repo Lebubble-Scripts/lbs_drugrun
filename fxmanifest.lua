@@ -10,6 +10,7 @@ server_scripts {
 
 client_scripts {
     'client/functions.lua',
+    'client/variables.lua',
     'client/client.lua',
     'client/drugrun.lua',
 }
