@@ -86,8 +86,6 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
         }
     })
 
-    -- ensure boxes are loaded
-
 end)
 
 CreateThread(function()
@@ -165,10 +163,14 @@ CreateThread(function()
                 description = "Mission completed! You delivered the weed.",
                 type = "success"
             })
-            -- replace below with freezing truck and having the player "deliver" the boxes to a ped. Once done a reward is given
+            -- TODOLT = to do long term
+            -- TODOLT replace below with freezing truck and having the player "deliver" the boxes to a ped. Once done a reward is given
+            -- TODO check if player is out of vehicle before deleting the truck
+            -- TODO add reward for completing the mission -> setup rewards in config.lua
             DeleteVehicle(truck) 
             truck = nil
             missionActive = false
+            CleanupMission()
         end
         ::continue::
     end
@@ -185,6 +187,9 @@ CreateThread(function()
             DisableControlAction(0, 22, true)
         else
             Wait(500)
+            EnableControlAction(0, 24, true) -- Disable LMB attack
+            EnableControlAction(0, 25, true) -- Disable RMB aim
+            EnableControlAction(0, 22, true)
         end
         Wait(0)
     end
