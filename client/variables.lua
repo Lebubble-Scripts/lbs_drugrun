@@ -14,5 +14,5 @@ notifiedDelivery = false
 boxesPickedUp = 0
 boxesToPickUp = 1
 
-weedPallet = "hei_prop_heist_weed_pallet"
+
 palletObj = nil

@@ -18,7 +18,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     VariableCleanup()
 
     -- Request model and ensure it's loaded
-    local vehicleHash = GetHashKey('mule')
+    local vehicleHash = GetHashKey(Config.MissionOptions.truckModel)
     RequestModel(vehicleHash)
     while not HasModelLoaded(vehicleHash) do
         Wait(1)
@@ -93,6 +93,16 @@ CreateThread(function()
         local pcoords = GetEntityCoords(ped)
         local notified = false
 
+        if deliveryBlip then
+            DrawMarker(
+                1,
+                loc.deliveryCoords.x, loc.deliveryCoords.y, loc.deliveryCoords.z - 1,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                5.0, 5.0, 1.5,
+                255, 255, 0, 100,
+                false, true, 2, false, nil, nil, false
+            )
+        end
         -- add check to ensure boxes are loaded into truck 
         if pickupBlip then 
             local dist = #(pcoords - loc.pickupCoords)
@@ -180,4 +190,25 @@ CreateThread(function()
         end
         Wait(0)
     end
+end)
+
+
+RegisterCommand('quitmission', function()
+    if not missionActive then 
+        lib.notify({
+            title = "Weed Run",
+            description = "You are not on a mission.",
+            type = "error"
+        })
+        return
+    end
+    missionActive = false
+    VariableCleanup()
+    lib.notify({
+        title = "Weed Run",
+        description = "Mission cancelled.",
+        type = "info"
+    })
+
+    CleanupMission()
 end)

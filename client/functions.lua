@@ -49,7 +49,7 @@ end
 
 
 function SpawnPalletProp(propCoords)
-    RequestModel(weedPallet)
+    RequestModel(Config.MissionOptions.weedPallet)
     while not HasModelLoaded(weedPallet) do
         Wait(1)
     end
