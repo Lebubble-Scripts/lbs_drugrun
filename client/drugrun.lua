@@ -48,7 +48,6 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     })
 
     -- Spawn the pickup box 
-    print("Spawning pallet at: ", loc.propCoords)
     local palletObj = SpawnPalletProp(loc.propCoords)
 
     --add ox_target interaction for the pallet
@@ -163,6 +162,7 @@ CreateThread(function()
                 hasArrivedAtDelivery = false
                 missionActive = false
                 CleanupMission()
+                --GiveRewards()
             end
         elseif notifiedDelivery and (#(pcoords - loc.deliveryCoords) > 5.0) then
             notifiedDelivery = false
@@ -204,11 +204,11 @@ RegisterCommand('quitmission', function()
     end
     missionActive = false
     VariableCleanup()
+    CleanupMission()
     lib.notify({
         title = "Weed Run",
         description = "Mission cancelled.",
         type = "info"
     })
-
-    CleanupMission()
+    
 end)

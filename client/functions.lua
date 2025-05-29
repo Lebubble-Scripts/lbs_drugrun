@@ -33,23 +33,12 @@ function CleanupMission()
         SetBlipRoute(deliveryBlip, false)
         deliveryBlip = nil
     end
-    
+    VariableCleanup()
 end
-
-
-function getPlayer(source)
-    if Config.Framework == 'qb' then
-        return QBCore.Functions.GetPlayer(source)
-    elseif Config.Framework == 'esx' then
-        return ESX.GetPlayerFromId(source)
-    elseif Config.Framework == 'qbx' then 
-        return qbx:GetPlayer(source)
-    end
-end
-
 
 function SpawnPalletProp(propCoords)
-    RequestModel(Config.MissionOptions.weedPallet)
+    local weedPallet = Config.MissionOptions.weedPallet
+    RequestModel(weedPallet)
     while not HasModelLoaded(weedPallet) do
         Wait(1)
     end
@@ -103,12 +92,6 @@ function StopCarryingBox()
     boxObj = nil
 end
 
-function CleanupBox()
-    if boxObj then 
-        DeleteEntity(boxObj)
-    end
-end
-
 function EnsureCarryAnim()
     if IsCarryingBox() and not IsEntityPlayingAnim(PlayerPedId(), carryingAnimDict, carryingAnimName, 3) then
         if HasAnimDictLoaded(carryingAnimDict) then
@@ -138,5 +121,23 @@ function WeedNotify(description, type)
         })
     elseif Config.Notify == 'qb' then
         QBCore.Functions.Notify(description, type or "primary")
+    end
+end
+
+function GiveItem(item, amount)
+    if Config.Inventory == 'qb' then
+        local Player = getPlayer(PlayerId())
+        if Player then
+            Player.Functions.AddItem(item, amount)
+        end
+    elseif Config.Inventory == 'ox' then
+        exports.ox_inventory:AddItem(PlayerId(), item, amount)
+    end
+    
+end
+
+function GiveRewards()
+    for k, v in pairs(Config.MissionRewards) do
+        GiveItem(k, v)
     end
 end

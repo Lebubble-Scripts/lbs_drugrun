@@ -3,8 +3,9 @@ Config = {}
 
 Config.Notify = 'ox'        -- 'ox', 'qb'
 Config.Framework = 'qb'     -- 'qbx', 'qb',
+Config.Inventory = 'qb'     -- 'qb', 'ox'
 
-
+-- Please don't change this
 if Config.Framework == 'qb' then
     print('[FRAMEWORK] ^5Deteced QBCore Framework^7')
     QBCore = exports['qb-core']:GetCoreObject()
@@ -35,12 +36,13 @@ Config.Locations = {
 }
 
 Config.MissionOptions = {
-    boxesToPickUp = 1, -- Number of boxes to pick up
-    truckModel = 'mule', -- Truck model to spawn
-    weedPallet = 'hei_prop_heist_weed_pallet', -- Prop model for the weed pallet https://gtahash.ru/
+    boxesToPickUp = 1,                              -- Number of boxes to pick up
+    truckModel = 'mule',                            -- Truck model to spawn
+    weedPallet = 'hei_prop_heist_weed_pallet',      -- Prop model for the weed pallet https://gtahash.ru/
 }
 
+-- Add or remove mission rewards here. Ensure that the keys match the items in your inventory system.
 Config.MissionRewards = {
-    cash = 500, -- Money reward for completing the mission
-    water_bottle = 1, 
+    cash = 500,         -- Money reward for completing the mission
+    water_bottle = 1,   -- misc rewards
 }
