@@ -1,7 +1,7 @@
 Config = {}
 
 
-Config.Notify = 'qb'        -- 'ox', 'qb'
+Config.Notify = 'ox'        -- 'ox', 'qb'
 Config.Framework = 'qb'     -- 'qbx', 'qb',
 
 
@@ -32,4 +32,10 @@ Config.Locations = {
     --    deliveryCoords = vector3(1677.92, 3281.74, 40.83),
     --    propCoords = vector3(2486.95, 3726.88, 43.92),
     --},
+}
+
+Config.MissionOptions = {
+    boxesToPickUp = 1, -- Number of boxes to pick up
+    truckModel = 'mule', -- Truck model to spawn
+    weedPallet = 'prop_weed_pallet', -- Prop model for the weed pallet
 }
