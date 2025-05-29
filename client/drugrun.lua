@@ -12,11 +12,10 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
         return
     end
 
-    --ensure varaibles are reset, TODO: move to a function
+    -- mission is now active
+    -- cleanup any previous mission data
     missionActive = true
-    hasArrivedAtPickup = false
-    boxesPickedUp = 0
-    boxesToPickUp = 1
+    VariableCleanup()
 
     -- Request model and ensure it's loaded
     local vehicleHash = GetHashKey('mule')
@@ -36,6 +35,8 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     SetBlipSprite(pickupBlip, 477)
     SetBlipColour(pickupBlip, 2)
     SetBlipScale(pickupBlip, 0.8)
+    SetBlipRoute(pickupBlip, true)
+    SetBlipRouteColour(pickupBlip, 2)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString("Weed Run Pickup")
     EndTextCommandSetBlipName(pickupBlip)
@@ -50,6 +51,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     print("Spawning pallet at: ", loc.propCoords)
     local palletObj = SpawnPalletProp(loc.propCoords)
 
+    --add ox_target interaction for the pallet
     exports.ox_target:addLocalEntity(palletObj, {
         {
             name = "pickupBox",
@@ -64,7 +66,6 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
                     })
                     return
                 end
-                print('missionActive: ', missionActive)
                 if not missionActive then return end 
                 if boxesPickedUp < boxesToPickUp then
                     StartCarryingBox()
@@ -74,11 +75,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
                         type = "success"
                     })
                 elseif boxesPickedUp >= boxesToPickUp then
-                    lib.notify({
-                        title = "Weed Run",
-                        description = "You have already picked up all the boxes.",
-                        type = "error"
-                    })
+                    WeedNotify("You have already picked up all the boxes.", 'error')
                     return
                 end
 
@@ -94,6 +91,7 @@ CreateThread(function()
         if not missionActive then Wait(500) goto continue end 
         local ped = PlayerPedId()
         local pcoords = GetEntityCoords(ped)
+        local notified = false
 
         -- add check to ensure boxes are loaded into truck 
         if pickupBlip then 
@@ -106,7 +104,6 @@ CreateThread(function()
                     type = "info"
                 })
             end
-            
             if IsCarryingBox() and truck  then 
                 local truckCoords = GetEntityCoords(truck)
                 local dist = #(GetEntityCoords(PlayerPedId()) - truckCoords)
@@ -116,17 +113,9 @@ CreateThread(function()
                     if IsControlJustPressed(0, 38) then
                         StopCarryingBox()
                         boxesPickedUp = boxesPickedUp + 1
-                        lib.notify({
-                            title = "Weed Run",
-                            description = ("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp),
-                            type = "success"
-                        })
+                        WeedNotify(("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp), 'success')
                         if boxesPickedUp >= boxesToPickUp then
-                            lib.notify({
-                                title = "Weed Run",
-                                description = "You have loaded all the boxes. Get in the truck and deliver to the destination.",
-                                type = "success"
-                            })
+                            WeedNotify("You have loaded all the boxes into the truck. Deliver it to the destination.", 'success')
                         end
                     end
                 else
@@ -138,40 +127,38 @@ CreateThread(function()
 
             if hasArrivedAtPickup and boxesPickedUp >= boxesToPickUp and IsPedInVehicle(ped, truck, true) then
                 RemoveBlip(pickupBlip)
+                SetBlipRoute(pickupBlip, false)
                 pickupBlip = nil
 
                 deliveryBlip = AddBlipForCoord(loc.deliveryCoords)
                 SetBlipSprite(deliveryBlip, 478)
                 SetBlipColour(deliveryBlip, 5)
                 SetBlipScale(deliveryBlip, 0.8)
+                SetBlipRoute(deliveryBlip, true)
+                SetBlipRouteColour(deliveryBlip, 5)
                 BeginTextCommandSetBlipName("STRING")
                 AddTextComponentString("Weed Run Delivery")
                 EndTextCommandSetBlipName(deliveryBlip)
-                lib.notify({
-                    title = "Weed Run",
-                    description = "Deliver the truck to the destination.",
-                    type = "info"
-                })
+                WeedNotify("Deliver the truck to the delivery location.", 'info')
             end
         end
-
-        if deliveryBlip and IsPedInVehicle(ped, truck, false) and #(pcoords - loc.deliveryCoords) < 5.0 then 
-            RemoveBlip(deliveryBlip)
-            deliveryBlip = nil
-            lib.notify({
-                title = "Weed Run",
-                description = "Mission completed! You delivered the weed.",
-                type = "success"
-            })
-            -- TODOLT = to do long term
-            -- TODOLT replace below with freezing truck and having the player "deliver" the boxes to a ped. Once done a reward is given
-            -- TODO check if player is out of vehicle before deleting the truck
-            -- TODO add reward for completing the mission -> setup rewards in config.lua
-            DeleteVehicle(truck) 
-            truck = nil
-            missionActive = false
-            CleanupMission()
+        if deliveryBlip and #(pcoords - loc.deliveryCoords) < 5.0 then
+            if not notifiedDelivery and IsPedInVehicle(ped, truck, true) then
+                notifiedDelivery = true
+                WeedNotify("You have arrived at the delivery location. Exit the truck to complete the mission.", 'info')
+            elseif notifiedDelivery and not IsPedInVehicle(ped, truck, true) and #(pcoords - loc.deliveryCoords) < 5.0 then
+                WeedNotify("Mission complete! You have delivered the truck.", 'success')
+                RemoveBlip(deliveryBlip)
+                deliveryBlip = nil
+                hasArrivedAtDelivery = false
+                missionActive = false
+                CleanupMission()
+            end
+        elseif notifiedDelivery and (#(pcoords - loc.deliveryCoords) > 5.0) then
+            notifiedDelivery = false
         end
+
+
         ::continue::
     end
 end)

@@ -10,6 +10,7 @@ truck = nil
 pickupBlip = nil
 deliveryBlip = nil
 hasArrivedAtPickup = false
+notifiedDelivery = false
 boxesPickedUp = 0
 boxesToPickUp = 1
 

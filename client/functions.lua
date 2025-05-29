@@ -23,6 +23,17 @@ function CleanupMission()
     if IsEntityPlayingAnim(PlayerPedId(), carryingAnimDict, carryingAnimName) then
         ClearPedTasks(PlayerPedId())
     end
+    if pickupBlip then 
+        SetBlipRoute(pickupBlip, false)
+        RemoveBlip(pickupBlip)
+        pickupBlip = nil
+    end
+    if deliveryBlip then 
+        RemoveBlip(deliveryBlip)
+        SetBlipRoute(deliveryBlip, false)
+        deliveryBlip = nil
+    end
+    
 end
 
 
@@ -112,4 +123,20 @@ function EnsureCarryAnim()
     end
 end
 
+function VariableCleanup()
+    hasArrivedAtPickup = false
+    boxesPickedUp = 0
+    boxesToPickUp = Config.MissionOptions.boxesToPickUp
+end
 
+function WeedNotify(description, type)
+    if Config.Notify == 'ox' then
+        lib.notify({
+            title = "Weed Run",
+            description = description,
+            type = type or "info"
+        })
+    elseif Config.Notify == 'qb' then
+        QBCore.Functions.Notify(description, type or "primary")
+    end
+end
