@@ -37,5 +37,10 @@ Config.Locations = {
 Config.MissionOptions = {
     boxesToPickUp = 1, -- Number of boxes to pick up
     truckModel = 'mule', -- Truck model to spawn
-    weedPallet = 'prop_weed_pallet', -- Prop model for the weed pallet
+    weedPallet = 'hei_prop_heist_weed_pallet', -- Prop model for the weed pallet https://gtahash.ru/
+}
+
+Config.MissionRewards = {
+    cash = 500, -- Money reward for completing the mission
+    water_bottle = 1, 
 }
