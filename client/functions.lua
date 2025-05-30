@@ -112,7 +112,7 @@ function VariableCleanup()
     boxesToPickUp = Config.MissionOptions.boxesToPickUp
 end
 
-function WeedNotify(description, type)
+function MissionNotify(description, type)
     if Config.Notify == 'ox' then
         lib.notify({
             title = "Weed Run",

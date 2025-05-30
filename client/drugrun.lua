@@ -41,11 +41,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     AddTextComponentString("Weed Run Pickup")
     EndTextCommandSetBlipName(pickupBlip)
 
-    lib.notify({
-        title = "Weed Run",
-        description = "Go to the pickup location and load the truck.",
-        type = "info"
-    })
+    MissionNotify("Mission started! Go to the pickup location and load the truck with weed boxes.", 'info')
 
     -- Spawn the pickup box 
     local palletObj = SpawnPalletProp(loc.propCoords)
@@ -58,23 +54,15 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
             label = "Load Weed Box",
             onSelect = function()
                 if IsCarryingBox() then
-                    lib.notify({
-                        title = "Weed Run",
-                        description = "You are already carrying a box.",
-                        type = "error"
-                    })
+                    MissionNotify("You are already carrying a box.", 'error')
                     return
                 end
                 if not missionActive then return end 
                 if boxesPickedUp < boxesToPickUp then
                     StartCarryingBox()
-                    lib.notify({
-                        title = "Weed Run",
-                        description = ("Box picked up! Load it into the truck!"):format(boxesPickedUp, boxesToPickUp),
-                        type = "success"
-                    })
+                    MissionNotify("Load the box into the truck.", 'info')
                 elseif boxesPickedUp >= boxesToPickUp then
-                    WeedNotify("You have already picked up all the boxes.", 'error')
+                    MissionNotify("You have already picked up all the boxes.", 'error')
                     return
                 end
 
@@ -92,7 +80,8 @@ CreateThread(function()
         local pcoords = GetEntityCoords(ped)
         local notified = false
 
-        if deliveryBlip then
+        --show where truck can be delivered
+        if deliveryBlip and missionActive then
             DrawMarker(
                 1,
                 loc.deliveryCoords.x, loc.deliveryCoords.y, loc.deliveryCoords.z - 1,
@@ -107,11 +96,7 @@ CreateThread(function()
             local dist = #(pcoords - loc.pickupCoords)
             if dist < 20.0 and not hasArrivedAtPickup then
                 hasArrivedAtPickup = true
-                lib.notify({
-                    title = "Weed Run",
-                    description = "You have arrived at the pickup location. Load the truck with weed boxes.",
-                    type = "info"
-                })
+                MissionNotify("You have arrived at the pickup location. Load the truck with weed boxes.", 'info')
             end
             if IsCarryingBox() and truck  then 
                 local truckCoords = GetEntityCoords(truck)
@@ -122,9 +107,9 @@ CreateThread(function()
                     if IsControlJustPressed(0, 38) then
                         StopCarryingBox()
                         boxesPickedUp = boxesPickedUp + 1
-                        WeedNotify(("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp), 'success')
+                        MissionNotify(("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp), 'success')
                         if boxesPickedUp >= boxesToPickUp then
-                            WeedNotify("You have loaded all the boxes into the truck. Deliver it to the destination.", 'success')
+                            MissionNotify("You have loaded all the boxes into the truck. Deliver it to the destination.", 'success')
                         end
                     end
                 else
@@ -148,19 +133,18 @@ CreateThread(function()
                 BeginTextCommandSetBlipName("STRING")
                 AddTextComponentString("Weed Run Delivery")
                 EndTextCommandSetBlipName(deliveryBlip)
-                WeedNotify("Deliver the truck to the delivery location.", 'info')
+                MissionNotify("Deliver the truck to the delivery location.", 'info')
             end
         end
         if deliveryBlip and #(pcoords - loc.deliveryCoords) < 5.0 then
             if not notifiedDelivery and IsPedInVehicle(ped, truck, true) then
                 notifiedDelivery = true
-                WeedNotify("You have arrived at the delivery location. Exit the truck to complete the mission.", 'info')
+                MissionNotify("You have arrived at the delivery location. Exit the truck to complete the mission.", 'info')
             elseif notifiedDelivery and not IsPedInVehicle(ped, truck, true) and #(pcoords - loc.deliveryCoords) < 5.0 then
-                WeedNotify("Mission complete! You have delivered the truck.", 'success')
+                MissionNotify("Mission complete! You have delivered the truck.", 'success')
                 RemoveBlip(deliveryBlip)
-                deliveryBlip = nil
-                hasArrivedAtDelivery = false
-                missionActive = false
+                print('triggering server event for rewards')
+                TriggerServerEvent('lbs_drugrun:server:rewardItems')
                 CleanupMission()
                 --GiveRewards()
             end
@@ -195,20 +179,12 @@ end)
 
 RegisterCommand('quitmission', function()
     if not missionActive then 
-        lib.notify({
-            title = "Weed Run",
-            description = "You are not on a mission.",
-            type = "error"
-        })
+        MissionNotify("You are not on a mission.", 'error')
         return
     end
     missionActive = false
     VariableCleanup()
     CleanupMission()
-    lib.notify({
-        title = "Weed Run",
-        description = "Mission cancelled.",
-        type = "info"
-    })
+    MissionNotify("You have quit the mission.", 'info')
     
 end)
