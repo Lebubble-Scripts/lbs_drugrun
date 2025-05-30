@@ -163,13 +163,13 @@ CreateThread(function()
         if IsCarryingBox() then 
             EnsureCarryAnim()
 
-            DisableControlAction(0, 24, true) -- Disable LMB attack
-            DisableControlAction(0, 25, true) -- Disable RMB aim
+            DisableControlAction(0, 24, true) 
+            DisableControlAction(0, 25, true) 
             DisableControlAction(0, 22, true)
         else
             Wait(500)
-            EnableControlAction(0, 24, true) -- Disable LMB attack
-            EnableControlAction(0, 25, true) -- Disable RMB aim
+            EnableControlAction(0, 24, true)
+            EnableControlAction(0, 25, true)
             EnableControlAction(0, 22, true)
         end
         Wait(0)
