@@ -6,6 +6,8 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     --randomly choose a location
     randomIndex = math.random(1, #Config.Locations)
     loc = Config.Locations[randomIndex]
+    DebugPrint("Selected location index: " .. randomIndex)
+    DebugPrint("Selected location: " .. json.encode(loc))
 
     --os.time doesn't work on my server, so I commented out the cooldown logic
     -- if cooldownTime and cooldownTime < os.time() + Config.Cooldown then 
@@ -18,11 +20,14 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
 
     if drug then 
         drugType = drug
+        DebugPrint("Starting mission for drug type: " .. drugType)
     else
+        DebugPrint("No Drug Type Provided")
         return
     end
 
     if missionActive then 
+        DebugPrint("Mission is already active, cannot start a new one." .. missionActive)
         ClientNotify("You are already on a mission.", 'error')
         return
     end
@@ -38,8 +43,13 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     end
 
     -- Spawn the truck at the pickup location
+    DebugPrint("Spawning truck at pickup location: " .. json.encode(loc.pickupCoords))
     truck = CreateVehicle(vehicleHash, loc.pickupCoords.x, loc.pickupCoords.y, loc.pickupCoords.z, true, false)
-    TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', GetVehicleNumberPlateText(truck))
+    if Config.Framework == 'qb' then 
+        TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', GetVehicleNumberPlateText(truck))
+        TriggerEvent('LegacyFuel:client:SetFuel', truck, 100.0) -- Set fuel to full
+        DebugPrint("Acquired vehicle keys for truck with plate: " .. GetVehicleNumberPlateText(truck))
+    end
     SetEntityAsMissionEntity(truck, true, true)
     SetVehicleDoorsLocked(truck, 1)
 
@@ -58,6 +68,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
 
     -- Spawn the pickup box 
     local palletObj = SpawnPalletProp(loc.propCoords)
+    DebugPrint("Spawned pallet object at: " .. json.encode(loc.propCoords))
 
     --add ox_target interaction for the pallet
     exports.ox_target:addLocalEntity(palletObj, {
@@ -82,6 +93,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
             end,
         }
     })
+    DebugPrint("Added target interaction for pallet object.")
 end)
 
 
@@ -96,20 +108,13 @@ CreateThread(function()
         --show where truck can be delivered
         if deliveryBlip and missionActive then
             CreateCircleMarker(loc.deliveryCoords)
-            -- DrawMarker(
-            --     1,
-            --     loc.deliveryCoords.x, loc.deliveryCoords.y, loc.deliveryCoords.z - 1,
-            --     0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            --     5.0, 5.0, 1.5,
-            --     255, 255, 0, 100,
-            --     false, true, 2, false, nil, nil, false
-            -- )
         end
         -- add check to ensure boxes are loaded into truck 
         if pickupBlip then 
             local dist = #(pcoords - loc.pickupCoords)
             if dist < 20.0 and not hasArrivedAtPickup then
                 hasArrivedAtPickup = true
+                DebugPrint("Player has arrived at pickup location.")
                 ClientNotify("You have arrived at the pickup location. Load the truck with boxes.", 'info')
             end
             if IsCarryingBox() and truck  then 
@@ -119,10 +124,12 @@ CreateThread(function()
                 if dist < 3.0 then 
                     lib.showTextUI("[E] Load box into truck")
                     if IsControlJustPressed(0, 38) then
+                        DebugPrint("Box loaded into truck.")
                         StopCarryingBox()
                         boxesPickedUp = boxesPickedUp + 1
                         ClientNotify(("Box loaded into truck! [%d/%d]"):format(boxesPickedUp, boxesToPickUp), 'success')
                         if boxesPickedUp >= boxesToPickUp then
+                            DebugPrint("All boxes loaded into truck.")
                             ClientNotify("You have loaded all the boxes into the truck. Deliver it to the destination.", 'success')
                         end
                     end
@@ -134,6 +141,7 @@ CreateThread(function()
             end
 
             if hasArrivedAtPickup and boxesPickedUp >= boxesToPickUp and IsPedInVehicle(ped, truck, true) then
+                DebugPrint("Leaving pickup, removing pickup blip and creating delivery blip.")
                 RemoveBlip(pickupBlip)
                 SetBlipRoute(pickupBlip, false)
                 pickupBlip = nil
@@ -145,8 +153,10 @@ CreateThread(function()
         if deliveryBlip and #(pcoords - loc.deliveryCoords) < 5.0 then
             if not notifiedDelivery and IsPedInVehicle(ped, truck, true) then
                 notifiedDelivery = true
+                DebugPrint("Player has arrived at delivery location.")
                 ClientNotify("You have arrived at the delivery location. Exit the truck to complete the mission.", 'info')
             elseif notifiedDelivery and not IsPedInVehicle(ped, truck, true) and #(pcoords - loc.deliveryCoords) < 5.0 then
+                DebugPrint("Mission Complete, rewarding player")
                 ClientNotify("Mission complete! You have delivered the truck.", 'success')
                 RemoveBlip(deliveryBlip)
                 TriggerServerEvent('lbs_drugrun:server:rewardItems', drugType, loc.deliveryCoords)

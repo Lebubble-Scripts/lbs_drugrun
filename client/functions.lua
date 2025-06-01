@@ -1,4 +1,5 @@
 function CleanupMission()
+    DebugPrint("Attempting to clean up mission resources.")
     if truck then
         DeleteVehicle(truck)
         truck = nil
@@ -34,6 +35,7 @@ function CleanupMission()
         deliveryBlip = nil
     end
     VariableCleanup()
+    DebugPrint("Mission resources cleaned up successfully.")
 end
 
 function SpawnPalletProp(propCoords)
