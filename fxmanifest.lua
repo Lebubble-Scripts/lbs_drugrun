@@ -16,7 +16,9 @@ client_scripts {
 }
 
 shared_script {
+    'shared/functions.lua',
     'shared/config.lua',
+    'shared/bridge.lua',
     '@ox_lib/init.lua',
 }
 
