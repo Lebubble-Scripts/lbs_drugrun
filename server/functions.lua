@@ -3,6 +3,8 @@ function GetPlayer(source)
         return QBCore.Functions.GetPlayer(source)
     elseif Config.Framework == 'qbx' then 
         return qbx:GetPlayer(source)
+    elseif Config.Framework == 'esx' then 
+        return ESX.GetExtendedPlayers()
     end
 end
 
@@ -36,6 +38,8 @@ function ServerNotify(source, message, type)
         })
     elseif Config.Notify == 'qb' then 
         TriggerClientEvent('QBCore:Notify', source, message, type)
+    elseif Config.Notify == 'esx' then 
+        TriggerClientEvent('esx:showNotification', source, message, 5000, 'Drug Run')
     end
 
 end
