@@ -12,10 +12,13 @@ function addItem(source, item, amount)
     if GetResourceState('ox_inventory') == 'started' then
         exports.ox_inventory:AddItem(src, item, amount)
     elseif GetResourceState('qb-inventory') == 'started' then
+        --stupid ass QB workaround since they can't do it in their inventory :)
         if item == 'cash' then 
             Player = getPlayer(src)
             Player.Functions.AddMoney('cash', amount)
-        exports['qb-inventory']:AddItem(src, item, amount)
+        else 
+            exports['qb-inventory']:AddItem(src, item, amount)
+        end
     end
-    ServerNotify(('Added %s x%d to player %d'):format(item, amount, src), 'success')
+    print(('Added %s x%d to player %d'):format(item, amount, src))
 end
