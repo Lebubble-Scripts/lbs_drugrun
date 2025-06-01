@@ -14,7 +14,7 @@ end
 -- Set the cooldown time in seconds
 -- 60 * 5 = 300 seconds = 5 minutes
 -- 60 * 60 * 2 = 7200 seconds = 2 hours
-Config.Cooldown = 10
+Config.Cooldown = 60
 
 -- Set different run locations here, for now we only do weed run
 ---@param pickupCoords vector3 : the location where the truck will spawn for pickup
@@ -38,8 +38,8 @@ Config.Locations = {
 Config.MissionOptions = {
     boxesToPickUp = 1,                              -- Number of boxes to pick up
     truckModel = 'mule',                            -- Truck model to spawn
-    weedPallet = 'hei_prop_heist_weed_pallet',      -- Prop model for the weed pallet https://gtahash.ru/
 }
+
 
 -- Add or remove mission rewards here. Ensure that the keys match the items in your inventory system.
 Config.MissionRewards = {
