@@ -1,6 +1,6 @@
 RegisterServerEvent("lbs_drugrun:server:rewardItems", function(drug, dcoords)
     local src = source
-    local Player = getPlayer(src)
+    local Player = GetPlayer(src)
     print('server event triggered')
     local pcoords = GetEntityCoords(GetPlayerPed(src))
     print(pcoords)
@@ -10,11 +10,12 @@ RegisterServerEvent("lbs_drugrun:server:rewardItems", function(drug, dcoords)
         print(('Player %d is too far from the delivery coordinates.'):format(src))
         return
     end
-    print('adding items')
-    local drugRewardAmount = math.random(1, 3)
-    addItem(src, drug, drugRewardAmount)
+    local drugRewardAmount = math.random(1, Config.MaxDrugRewardAmount)
+    AddItem(src, drug, drugRewardAmount)
+    ServerNotify(src, ('You have received %d x %s as a reward for the drug run.'):format(drugRewardAmount, drug), 'success')
 
     for k, v in pairs(Config.MissionRewards) do
-        addItem(src, k, v)
+        AddItem(src, k, v)
+        ServerNotify(src, ('You have received %d x %s as a reward for the drug run.'):format(v, k), 'success')
     end
 end)
