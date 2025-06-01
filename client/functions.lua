@@ -37,13 +37,14 @@ function CleanupMission()
 end
 
 function SpawnPalletProp(propCoords)
-    local weedPallet = Config.MissionOptions.weedPallet
+    local weedPallet = "v_ind_cf_boxes"
     RequestModel(weedPallet)
     while not HasModelLoaded(weedPallet) do
         Wait(1)
     end
 
     palletObj = CreateObject(weedPallet, propCoords.x, propCoords.y, propCoords.z - 1, true, true, false)
+    FreezeEntityPosition(palletObj, true)
     return palletObj
 end
 

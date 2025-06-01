@@ -14,10 +14,22 @@ local function spawnPeds()
     exports.ox_target:addLocalEntity(ped, {
         {
             name = "startDrugrun",
-            icon = "fa-solid fa-cannabis",
-            label = "Start Weed Run",
+            icon = "fa-solid fa-pills",
+            label = "Start Drug Run",
             onSelect = function()
-                TriggerEvent("lbs_drugrun:client:startMission")
+                local input = lib.inputDialog("Select Drug Type", {
+                    {type='select', label='Drug Type', options=
+                    {
+                        {label='Weed', value='weed_brick'},
+                        {label='Cocaine', value='cocaine'},
+                        {label='Meth', value='meth'},
+                        {label='Opium', value='opium'},
+                    }
+                    , default=1}
+                })
+                if input and input[1] then 
+                    TriggerEvent("lbs_drugrun:client:startMission", input[1])
+                end
             end,
         }
     })
@@ -27,7 +39,6 @@ spawnPeds()
 
 AddEventHandler('onResourceStop', function(resourceName)
     if resourceName == GetCurrentResourceName() then
-        CleanupBox()
         CleanupMission()
     end
 end)

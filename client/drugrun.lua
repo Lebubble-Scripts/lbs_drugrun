@@ -2,16 +2,30 @@ local randomIndex = math.random(1, #Config.Locations)
 local loc = Config.Locations[randomIndex]
 
 
-RegisterNetEvent('lbs_drugrun:client:startMission', function()
-    if missionActive then 
-        lib.notify({
-            title = "Weed Run",
-            description = "You are already on a mission.",
-            type = "error"
-        })
+RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
+    
+    --os.time doesn't work on my server, so I commented out the cooldown logic
+    -- print("Starting drug run mission...")
+    -- print(os)
+    -- print(os.time)
+    -- if cooldownTime and cooldownTime < os.time() + Config.Cooldown then 
+    --     MissionNotify("You are on a cooldown. Please wait before starting a new mission.", 'error')
+    --     print("Cooldown time until next mission: " .. cooldownTime)
+    --     return 
+    -- else
+    --     cooldownTime = os.time() + Config.Cooldown
+    -- end
+
+    if drug then 
+        drugType = drug
+    else
         return
     end
 
+    if missionActive then 
+        MissionNotify("You are already on a mission.", 'error')
+        return
+    end
     -- mission is now active
     -- cleanup any previous mission data
     missionActive = true
@@ -38,10 +52,10 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
     SetBlipRoute(pickupBlip, true)
     SetBlipRouteColour(pickupBlip, 2)
     BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Weed Run Pickup")
+    AddTextComponentString("Drug Run Pickup")
     EndTextCommandSetBlipName(pickupBlip)
 
-    MissionNotify("Mission started! Go to the pickup location and load the truck with weed boxes.", 'info')
+    MissionNotify("Mission started! Go to the pickup location and load the truck with drugs!", 'info')
 
     -- Spawn the pickup box 
     local palletObj = SpawnPalletProp(loc.propCoords)
@@ -51,7 +65,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
         {
             name = "pickupBox",
             icon = "fa-solid fa-box",
-            label = "Load Weed Box",
+            label = "Collect Drugs",
             onSelect = function()
                 if IsCarryingBox() then
                     MissionNotify("You are already carrying a box.", 'error')
@@ -69,8 +83,8 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function()
             end,
         }
     })
-
 end)
+
 
 CreateThread(function()
     while true do 
@@ -96,7 +110,7 @@ CreateThread(function()
             local dist = #(pcoords - loc.pickupCoords)
             if dist < 20.0 and not hasArrivedAtPickup then
                 hasArrivedAtPickup = true
-                MissionNotify("You have arrived at the pickup location. Load the truck with weed boxes.", 'info')
+                MissionNotify("You have arrived at the pickup location. Load the truck with boxes.", 'info')
             end
             if IsCarryingBox() and truck  then 
                 local truckCoords = GetEntityCoords(truck)
@@ -131,7 +145,7 @@ CreateThread(function()
                 SetBlipRoute(deliveryBlip, true)
                 SetBlipRouteColour(deliveryBlip, 5)
                 BeginTextCommandSetBlipName("STRING")
-                AddTextComponentString("Weed Run Delivery")
+                AddTextComponentString("Drug Run Delivery")
                 EndTextCommandSetBlipName(deliveryBlip)
                 MissionNotify("Deliver the truck to the delivery location.", 'info')
             end
@@ -143,16 +157,12 @@ CreateThread(function()
             elseif notifiedDelivery and not IsPedInVehicle(ped, truck, true) and #(pcoords - loc.deliveryCoords) < 5.0 then
                 MissionNotify("Mission complete! You have delivered the truck.", 'success')
                 RemoveBlip(deliveryBlip)
-                print('triggering server event for rewards')
-                TriggerServerEvent('lbs_drugrun:server:rewardItems')
+                TriggerServerEvent('lbs_drugrun:server:rewardItems', drugType, loc.deliveryCoords)
                 CleanupMission()
-                --GiveRewards()
             end
         elseif notifiedDelivery and (#(pcoords - loc.deliveryCoords) > 5.0) then
             notifiedDelivery = false
         end
-
-
         ::continue::
     end
 end)
@@ -185,6 +195,5 @@ RegisterCommand('quitmission', function()
     missionActive = false
     VariableCleanup()
     CleanupMission()
-    MissionNotify("You have quit the mission.", 'info')
-    
+    MissionNotify("You have quit the mission.", 'success')
 end)

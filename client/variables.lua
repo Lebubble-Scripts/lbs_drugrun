@@ -13,6 +13,6 @@ hasArrivedAtPickup = false
 notifiedDelivery = false
 boxesPickedUp = 0
 boxesToPickUp = 1
-
-
+drugType = nil
 palletObj = nil
+cooldownTime = nil
