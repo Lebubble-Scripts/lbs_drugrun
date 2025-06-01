@@ -1,15 +1,11 @@
 Config = {}
 
 
-Config.Notify = 'ox'        -- 'ox', 'qb'
-Config.Framework = 'qb'     -- 'qbx', 'qb',
-Config.Inventory = 'qb'     -- 'qb', 'ox'
+Config.Notify = 'ox'                                -- 'ox', 'qb'
+Config.Framework = 'qb'                             -- 'qb',
+Config.Inventory = 'qb'                             -- 'qb', 'ox'
 
--- Please don't change this
-if Config.Framework == 'qb' then
-    print('^5[FRAMEWORK] Deteced QBCore Framework^7')
-    QBCore = exports['qb-core']:GetCoreObject()
-end
+Config.EnableDebug = false
 
 -- Set the cooldown time in seconds
 -- 60 * 5 = 300 seconds = 5 minutes
@@ -66,6 +62,6 @@ Config.MaxDrugRewardAmount = 5
 
 -- Add or remove mission rewards here. Ensure that the keys match the items in your inventory system.
 Config.MissionRewards = {
-    cash = 500,         -- ITEM  = REWARD AMOUNT
+    cash = 500,                                     -- ITEM  = REWARD AMOUNT
     water_bottle = 1,   
 }
