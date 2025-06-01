@@ -81,7 +81,7 @@ end
 function StopCarryingBox()
     if not IsCarryingBox() then 
         lib.notify({
-            title = "Weed Run",
+            title = "Drug Run",
             description = "You are not carrying a box.",
             type = "error"
         })
@@ -113,12 +113,16 @@ function VariableCleanup()
     boxesToPickUp = Config.MissionOptions.boxesToPickUp
 end
 
-function MissionNotify(description, type)
+function ClientNotify(description, type)
     if Config.Notify == 'ox' then
         lib.notify({
-            title = "Weed Run",
+            title = "Drug Run",
             description = description,
-            type = type or "info"
+            type = type or "info",
+            position = "center-left",
+            iconAnimation = "beatFade",
+            duration = 5000, 
+
         })
     elseif Config.Notify == 'qb' then
         QBCore.Functions.Notify(description, type or "primary")
@@ -141,4 +145,58 @@ function GiveRewards()
     for k, v in pairs(Config.MissionRewards) do
         GiveItem(k, v)
     end
+end
+
+function GetLabel(item)
+    if GetResourceState('ox_inventory') == 'started' then
+        local Items = exports.ox_inventory:Items()
+        if Items[item] then 
+            return Items[item].label
+        end
+    elseif GetResourceState('qb-inventory') == 'started' then
+        if QBCore.Shared.Items[item] then 
+            return QBCore.Shared.Items[item].label
+        end
+    else 
+        return 'Item not found'
+    end
+end
+
+
+function CreateBlip(coords, sprite, color, scale, name)
+    local blip = AddBlipForCoord(coords)
+    SetBlipSprite(blip, sprite)
+    SetBlipColour(blip, color)
+    SetBlipScale(blip, scale)
+    SetBlipRoute(blip, true)
+    SetBlipColour(blip, color)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString(name)
+    EndTextCommandSetBlipName(blip)
+    return blip
+end
+
+function CreateCircleMarker(coords)
+    DrawMarker(
+        1,
+        coords.x, coords.y, coords.z - 1,
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        5.0, 5.0, 1.5,
+        255, 255, 0, 100,
+        false, true, 2, false, nil, nil, false
+    )
+end
+
+function CreatePedModel(model, coords, heading)
+    local pedModel = model 
+    RequestModel(pedModel)
+    while not HasModelLoaded(pedModel) do
+        Wait(1)
+    end
+    local ped = CreatePed(4, pedModel, coords.x, coords.y, coords.z - 1, heading, true, false)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    SetModelAsNoLongerNeeded(pedModel)
+    return ped
 end
