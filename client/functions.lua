@@ -202,3 +202,13 @@ function CreatePedModel(model, coords, heading)
     SetModelAsNoLongerNeeded(pedModel)
     return ped
 end
+
+function GiveVehicle(vehicle)
+    if GetResourceState('qb-core') == 'started' then 
+        TriggerServerEvent("qb-vehiclekeys:server:AcquireVehicleKeys", GetVehicleNumberPlateText(vehicle))
+        TriggerEvent('LegacyFuel:client:SetFuel', vehicle, 100.0) -- Set fuel to full
+        DebugPrint("Acquired vehicle keys for truck with plate: " .. GetVehicleNumberPlateText(vehicle))
+        SetEntityAsMissionEntity(truck, true, true)
+        SetVehicleDoorsLocked(truck, 1)
+    end
+end

@@ -9,15 +9,6 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     DebugPrint("Selected location index: " .. randomIndex)
     DebugPrint("Selected location: " .. json.encode(loc))
 
-    --os.time doesn't work on my server, so I commented out the cooldown logic
-    -- if cooldownTime and cooldownTime < os.time() + Config.Cooldown then 
-    --     ClientNotify("You are on a cooldown. Please wait before starting a new mission.", 'error')
-    --     print("Cooldown time until next mission: " .. cooldownTime)
-    --     return 
-    -- else
-    --     cooldownTime = os.time() + Config.Cooldown
-    -- end
-
     if drug then 
         drugType = drug
         DebugPrint("Starting mission for drug type: " .. drugType)
@@ -45,24 +36,10 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     -- Spawn the truck at the pickup location
     DebugPrint("Spawning truck at pickup location: " .. json.encode(loc.pickupCoords))
     truck = CreateVehicle(vehicleHash, loc.pickupCoords.x, loc.pickupCoords.y, loc.pickupCoords.z, true, false)
-    if Config.Framework == 'qb' then 
-        TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys', GetVehicleNumberPlateText(truck))
-        TriggerEvent('LegacyFuel:client:SetFuel', truck, 100.0) -- Set fuel to full
-        DebugPrint("Acquired vehicle keys for truck with plate: " .. GetVehicleNumberPlateText(truck))
-    end
-    SetEntityAsMissionEntity(truck, true, true)
-    SetVehicleDoorsLocked(truck, 1)
+    GiveVehicle(truck)
 
     -- Add a blip for the pickup location
-    pickupBlip = AddBlipForCoord(loc.pickupCoords)
-    SetBlipSprite(pickupBlip, 477)
-    SetBlipColour(pickupBlip, 2)
-    SetBlipScale(pickupBlip, 0.8)
-    SetBlipRoute(pickupBlip, true)
-    SetBlipRouteColour(pickupBlip, 2)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("Drug Run Pickup")
-    EndTextCommandSetBlipName(pickupBlip)
+    pickupBlip = CreateBlip(loc.pickupcoords, 477, 2, 0.8, "Drug Run Pickup")
 
     ClientNotify("Mission started! Go to the pickup location and load the truck with drugs!", 'info')
 
@@ -163,18 +140,17 @@ CreateThread(function()
                 CleanupMission()
             end
         elseif notifiedDelivery and (#(pcoords - loc.deliveryCoords) > 5.0) then
+            DebugPrint("Player has left the delivery area, resetting notifiedDelivery.")
             notifiedDelivery = false
         end
         ::continue::
     end
 end)
 
-
 CreateThread(function()
     while true do 
         if IsCarryingBox() then 
             EnsureCarryAnim()
-
             DisableControlAction(0, 24, true) 
             DisableControlAction(0, 25, true) 
             DisableControlAction(0, 22, true)
@@ -188,8 +164,7 @@ CreateThread(function()
     end
 end)
 
-
-RegisterCommand('quitmission', function()
+RegisterCommand('quitMission', function()
     if not missionActive then 
         ClientNotify("You are not on a mission.", 'error')
         return
