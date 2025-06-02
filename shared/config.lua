@@ -27,6 +27,7 @@ Config.Locations = {
         pickupCoords = vector3(1983.02, 3777.55, 32.18),
         deliveryCoords = vector3(1677.92, 3281.74, 40.83),
         propCoords = vector3(1974.14, 3766.81, 32.19),
+        deliveryPed = vector3(73.04,3727.06,39.72)
     },
     {
         pickupCoords = vector3(1729.01,3320.06,41.22),

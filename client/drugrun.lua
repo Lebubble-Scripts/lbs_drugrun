@@ -127,6 +127,61 @@ CreateThread(function()
                 ClientNotify("Deliver the truck to the delivery location.", 'info')
             end
         end
+        if delieveryBlip and (#pcoords - loc.deliveryCoords) < 5.0 then
+            local boxesToDeliver = boxesToPickUp
+            local boxesDelievered = 0
+            local deliveryStarted = false 
+            if isPedInVehicle and not deliveryStarted then 
+                deliveryStarted = true
+                DebugPrint("Delivery started, player is in vehicle.")
+                ClientNotify("You have arrived at the delivery location. Deliver the boxes to complete the mission.", 'info')
+                exports['ox_target']:addLocalEntity(truck, {
+                    {
+                        title = "Collect Box",
+                        icon = "fa-solid fa-box",
+                        label = "Collect Box from Truck",
+                        onSelect = function()
+                            if not missionActive then return end
+                            if boxesDelievered >= boxesToDeliver then
+                                ClientNotify("You have already delivered all the boxes.", 'error')
+                                return
+                            elseif not IsCarryingBox() then
+                                StartCarryingBox()
+                                ClientNotify("You have collected a box from the truck. Deliver it to the destination.", 'info')
+                            else
+                                ClientNotify("You are already carrying a box.", 'error')
+                            end
+                        end
+                    }
+                })
+            end
+            if IsCarryingBox() and not IsPedInVehicle(ped, truck, true) and deliveryStarted then
+                local dist = #(pcoords - loc.deliveryCoords)
+                if dist < 3.0 then
+                    lib.showTextUI("[E] Deliver Box")
+                    if IsControlJustPressed(0, 38) then
+                        DebugPrint("Box delivered to delivery location.")
+                        StopCarryingBox()
+                        boxesDelievered = boxesDelievered + 1
+                        ClientNotify(("Box delivered! [%d/%d]"):format(boxesDelievered, boxesToDeliver), 'success')
+                        if boxesDelievered >= boxesToDeliver then
+                            DebugPrint("All boxes delivered, mission complete.")
+                            ClientNotify("You have delivered all the boxes. Mission complete!", 'success')
+                            RemoveBlip(deliveryBlip)
+                            TriggerServerEvent('lbs_drugrun:server:rewardItems', drugType, loc.deliveryCoords)
+                            CleanupMission()
+                        end
+                    end
+                else
+                    lib.hideTextUI()
+                end
+            else
+                lib.hideTextUI()
+            end
+                
+            
+        end
+
         if deliveryBlip and #(pcoords - loc.deliveryCoords) < 5.0 then
             if not notifiedDelivery and IsPedInVehicle(ped, truck, true) then
                 notifiedDelivery = true
