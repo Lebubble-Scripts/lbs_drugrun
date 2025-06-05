@@ -5,7 +5,7 @@ Config.Notify = 'ox'                                -- 'ox', 'qb'
 Config.Framework = 'qb'                             -- 'qb',
 Config.Inventory = 'qb'                             -- 'qb', 'ox'
 
-Config.EnableDebug = false
+Config.EnableDebug = true
 
 -- Set the cooldown time in seconds
 -- 60 * 5 = 300 seconds = 5 minutes
@@ -25,24 +25,27 @@ Config.PedLocations = {
 Config.Locations = {
     {
         pickupCoords = vector3(1983.02, 3777.55, 32.18),
-        deliveryCoords = vector3(1677.92, 3281.74, 40.83),
         propCoords = vector3(1974.14, 3766.81, 32.19),
-        deliveryPed = vector3(73.04,3727.06,39.72)
+        deliveryCoords = vector3(1677.92, 3281.74, 40.83),
+        deliveryPed = {coords = vector3(1680.73,3286.71,41.07), heading = 126.60}
     },
     {
         pickupCoords = vector3(1729.01,3320.06,41.22),
+        propCoords = vector3(1737.52,3324.18,41.22),
         deliveryCoords = vector3(1882.86,2728.58,45.83),
-        propCoords = vector3(1737.52,3324.18,41.22)
+        deliveryPed = {coords = vector3(1880.71, 2727.55, 45.83), heading = 284.17}
     },
     {
         pickupCoords = vector3(450.28,3564.29,33.24),
-        deliveryCoords = vector3(1532.12,1703.00,109.75),
-        propCoords = vector3(448.15,3552.93,33.24)
+        propCoords = vector3(448.15,3552.93,33.24),
+        deliveryCoords = vector3(1532.12, 1703.00, 109.75),
+        deliveryPed = {coords = vector3(1537.34,1701.65,109.67), heading = 84.92}
     },
     {
         pickupCoords = vector3(737.06,1284.77,360.30),
-        deliveryCoords = vector3(56.53,3718.05,39.75),
-        propCoords = vector3(747.30,1293.51,360.30)
+        propCoords = vector3(747.30,1293.51,360.30),
+        deliveryCoords = vector3(56.53, 3718.05,39.75),
+        deliveryPed = {coords = vector3(63.65, 3714.76, 39.75), heading = 51.46}
     },
 }
 
