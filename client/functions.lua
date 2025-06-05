@@ -110,9 +110,18 @@ function EnsureCarryAnim()
 end
 
 function VariableCleanup()
+    missionActive = false
+    truck = nil
+    pickupBlip = nil
+    deliveryBlip = nil
     hasArrivedAtPickup = false
+    notifiedDelivery = false
     boxesPickedUp = 0
-    boxesToPickUp = Config.MissionOptions.boxesToPickUp
+    boxesToPickUp = 1
+    drugType = nil
+    palletObj = nil
+    cooldownTime = nil
+    deliveryStarted = false
 end
 
 function ClientNotify(description, type)
@@ -166,7 +175,8 @@ end
 
 
 function CreateBlip(coords, sprite, color, scale, name)
-    local blip = AddBlipForCoord(coords)
+    print(coords)
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, sprite)
     SetBlipColour(blip, color)
     SetBlipScale(blip, scale)
