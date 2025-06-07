@@ -18,7 +18,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     end
 
     if missionActive then 
-        DebugPrint("Mission is already active, cannot start a new one." .. missionActive)
+        DebugPrint("Mission is already active, cannot start a new one.")
         ClientNotify("You are already on a mission.", 'error')
         return
     end
@@ -131,11 +131,12 @@ CreateThread(function()
         
         if deliveryBlip then 
             local dist = #(pcoords - loc.deliveryCoords) 
-            if deliveryPedsSpawned then
+            local deliveryPed = nil
+            if deliveryPed and deliveryPedSpawned then
                 DebugPrint("Delivery ped already spawned, checking distance.")
-            else 
+            elseif not delieveryPed and not deliveryPedSpawned then 
                 local deliveryPed = CreatePedModel("a_m_m_business_01", loc.deliveryPed.coords, loc.deliveryPed.heading)
-                deliveryPedsSpawned = true 
+                deliveryPedSpawned = true 
             end
             if dist < 25.0 then
                 local boxesToDeliver = boxesToPickUp

@@ -1,5 +1,7 @@
 function CleanupMission()
     DebugPrint("Attempting to clean up mission resources.")
+    exports.ox_target:removeLocalEntity(palletObj)
+    exports.ox_target:removeLocalEntity(delieveryPed)
     if truck then
         DeleteVehicle(truck)
         truck = nil
@@ -34,6 +36,10 @@ function CleanupMission()
         SetBlipRoute(deliveryBlip, false)
         deliveryBlip = nil
     end
+    if delieveryPed then 
+        DeleteEntity(delieveryPed)
+    end
+
     VariableCleanup()
     DebugPrint("Mission resources cleaned up successfully.")
 end
@@ -122,6 +128,7 @@ function VariableCleanup()
     palletObj = nil
     cooldownTime = nil
     deliveryStarted = false
+    delieveryPed = nil
 end
 
 function ClientNotify(description, type)
@@ -137,24 +144,6 @@ function ClientNotify(description, type)
         })
     elseif Config.Notify == 'qb' then
         QBCore.Functions.Notify(description, type or "primary")
-    end
-end
-
-function GiveItem(item, amount)
-    if Config.Inventory == 'qb' then
-        local Player = getPlayer(PlayerId())
-        if Player then
-            Player.Functions.AddItem(item, amount)
-        end
-    elseif Config.Inventory == 'ox' then
-        exports.ox_inventory:AddItem(PlayerId(), item, amount)
-    end
-    
-end
-
-function GiveRewards()
-    for k, v in pairs(Config.MissionRewards) do
-        GiveItem(k, v)
     end
 end
 

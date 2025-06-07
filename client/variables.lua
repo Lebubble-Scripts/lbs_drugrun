@@ -17,4 +17,4 @@ drugType = nil
 palletObj = nil
 cooldownTime = nil
 deliveryStarted = false
-deliveryPedsSpawned = false 
+deliveryPedSpawned = false 
