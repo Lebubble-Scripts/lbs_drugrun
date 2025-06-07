@@ -20,3 +20,4 @@ RegisterServerEvent("lbs_drugrun:server:rewardItems", function(drug, dcoords)
         DebugPrint(('Player %d has received %d x %s as a reward for the drug run.'):format(src, v, k))
     end
 end)
+
