@@ -28,11 +28,12 @@ lbs_drugrun is a FiveM QBCore script that delivers immersive drug run missions t
 
 ## Usage
 - Players can initiate a drug run by interacting with any of the peds across the map.
-- Players load boxes into a truck, drive to the delivery point, and exit the truck.
+- Players load boxes into a truck, drive to the delievery point, then deliever boxes to the target ped. 
 
 ## Troubleshooting
 - Verify that the QBCore framework and all necessary dependencies are properly installed.
 - Check your server logs for any error messages related to lbs_drugrun during startup.
+- Enable Debug mode to check execution
 - Join the Discord to receive assistance with any issues not covered in this readme.
 
 
