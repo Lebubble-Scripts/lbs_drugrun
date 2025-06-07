@@ -11,6 +11,10 @@ local function spawnPeds()
                 icon = "fa-solid fa-pills",
                 label = "Start Drug Run",
                 onSelect = function()
+                    if missionActive then 
+                        ClientNotify("A drug run is already in progress. Please complete the mission to accept a new one.", 'error')
+                        return
+                    end
                     local input = lib.inputDialog("Select Drug Type", {
                         {type='select', label='Drug Type', options=
                         Config.DrugOptions or {}
@@ -22,6 +26,7 @@ local function spawnPeds()
                 end,
             }
         })
+
     end
 end
 
@@ -33,3 +38,8 @@ AddEventHandler('onResourceStop', function(resourceName)
         CleanupMission()
     end
 end)
+
+RegisterCommand('cleanupMission', function()
+    DebugPrint("Cleanup command executed.")
+    CleanupMission()
+end, false)

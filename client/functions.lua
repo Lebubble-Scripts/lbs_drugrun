@@ -1,5 +1,7 @@
 function CleanupMission()
     DebugPrint("Attempting to clean up mission resources.")
+    exports.ox_target:removeLocalEntity(palletObj)
+    exports.ox_target:removeLocalEntity(delieveryPed)
     if truck then
         DeleteVehicle(truck)
         truck = nil
@@ -34,6 +36,10 @@ function CleanupMission()
         SetBlipRoute(deliveryBlip, false)
         deliveryBlip = nil
     end
+    if delieveryPed then 
+        DeleteEntity(delieveryPed)
+    end
+
     VariableCleanup()
     DebugPrint("Mission resources cleaned up successfully.")
 end
@@ -110,9 +116,19 @@ function EnsureCarryAnim()
 end
 
 function VariableCleanup()
+    missionActive = false
+    truck = nil
+    pickupBlip = nil
+    deliveryBlip = nil
     hasArrivedAtPickup = false
+    notifiedDelivery = false
     boxesPickedUp = 0
-    boxesToPickUp = Config.MissionOptions.boxesToPickUp
+    boxesToPickUp = 1
+    drugType = nil
+    palletObj = nil
+    cooldownTime = nil
+    deliveryStarted = false
+    delieveryPed = nil
 end
 
 function ClientNotify(description, type)
@@ -128,24 +144,6 @@ function ClientNotify(description, type)
         })
     elseif Config.Notify == 'qb' then
         QBCore.Functions.Notify(description, type or "primary")
-    end
-end
-
-function GiveItem(item, amount)
-    if Config.Inventory == 'qb' then
-        local Player = getPlayer(PlayerId())
-        if Player then
-            Player.Functions.AddItem(item, amount)
-        end
-    elseif Config.Inventory == 'ox' then
-        exports.ox_inventory:AddItem(PlayerId(), item, amount)
-    end
-    
-end
-
-function GiveRewards()
-    for k, v in pairs(Config.MissionRewards) do
-        GiveItem(k, v)
     end
 end
 
@@ -166,7 +164,8 @@ end
 
 
 function CreateBlip(coords, sprite, color, scale, name)
-    local blip = AddBlipForCoord(coords)
+    print(coords)
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, sprite)
     SetBlipColour(blip, color)
     SetBlipScale(blip, scale)
@@ -201,4 +200,14 @@ function CreatePedModel(model, coords, heading)
     SetBlockingOfNonTemporaryEvents(ped, true)
     SetModelAsNoLongerNeeded(pedModel)
     return ped
+end
+
+function GiveVehicle(vehicle)
+    if GetResourceState('qb-core') == 'started' then 
+        TriggerServerEvent("qb-vehiclekeys:server:AcquireVehicleKeys", GetVehicleNumberPlateText(vehicle))
+        TriggerEvent('LegacyFuel:client:SetFuel', vehicle, 100.0) -- Set fuel to full
+        DebugPrint("Acquired vehicle keys for truck with plate: " .. GetVehicleNumberPlateText(vehicle))
+        SetEntityAsMissionEntity(truck, true, true)
+        SetVehicleDoorsLocked(truck, 1)
+    end
 end
