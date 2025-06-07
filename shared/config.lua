@@ -59,6 +59,7 @@ Config.DrugOptions = {
     {label='Cocaine', value='cokebaggy'},
     {label='Meth', value='meth'},
     {label='Oxy', value='oxy'},
+    {label='Diddy Oil', value='diddy_oil'},
 }
 
 -- Set the maximum amount of drug reward items to be given
