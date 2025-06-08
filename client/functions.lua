@@ -1,7 +1,10 @@
 function CleanupMission()
     DebugPrint("Attempting to clean up mission resources.")
+    --Remove ox target entities
     exports.ox_target:removeLocalEntity(palletObj)
     exports.ox_target:removeLocalEntity(delieveryPed)
+
+    --Remove active entities, blips, and peds
     if truck then
         DeleteVehicle(truck)
         truck = nil
@@ -37,21 +40,20 @@ function CleanupMission()
         deliveryBlip = nil
     end
     if delieveryPed then 
-        DeleteEntity(delieveryPed)
+        DeletePed(delieveryPed)
     end
-
     VariableCleanup()
     DebugPrint("Mission resources cleaned up successfully.")
 end
 
 function SpawnPalletProp(propCoords)
-    local weedPallet = "v_ind_cf_boxes"
-    RequestModel(weedPallet)
-    while not HasModelLoaded(weedPallet) do
+    local pallet = "v_ind_cf_boxes"
+    RequestModel(pallet)
+    while not HasModelLoaded(pallet) do
         Wait(1)
     end
 
-    palletObj = CreateObject(weedPallet, propCoords.x, propCoords.y, propCoords.z - 1, true, true, false)
+    palletObj = CreateObject(pallet, propCoords.x, propCoords.y, propCoords.z - 1, true, true, false)
     FreezeEntityPosition(palletObj, true)
     return palletObj
 end
@@ -63,7 +65,7 @@ end
 function StartCarryingBox()
     if IsCarryingBox() then
         lib.notify({
-            title = "Weed Run",
+            title = "Drug Run",
             description = "You are already carrying a box.",
             type = "error"
         })
