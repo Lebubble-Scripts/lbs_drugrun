@@ -9,7 +9,7 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
     DebugPrint("Selected location index: " .. randomIndex)
     DebugPrint("Selected location: " .. json.encode(loc))
 
-    if drug then 
+    if drug then
         drugType = drug
         DebugPrint("Starting mission for drug type: " .. drugType)
     else
@@ -81,13 +81,6 @@ CreateThread(function()
         if not missionActive then Wait(500) goto continue end 
         local ped = PlayerPedId()
         local pcoords = GetEntityCoords(ped)
-        local notified = false
-
-        --show where truck can be delivered
-        if deliveryBlip and missionActive then
-            CreateCircleMarker(loc.deliveryCoords)
-        end
-        -- add check to ensure boxes are loaded into truck 
         if pickupBlip then 
             local dist = #(pcoords - loc.pickupCoords)
             if dist < 20.0 and not hasArrivedAtPickup then
@@ -95,7 +88,7 @@ CreateThread(function()
                 DebugPrint("Player has arrived at pickup location.")
                 ClientNotify("You have arrived at the pickup location. Load the truck with boxes.", 'info')
             end
-            if IsCarryingBox() and truck  then 
+            if IsCarryingBox() and truck then 
                 local truckCoords = GetEntityCoords(truck)
                 local dist = #(GetEntityCoords(PlayerPedId()) - truckCoords)
 
@@ -132,10 +125,8 @@ CreateThread(function()
         if deliveryBlip then 
             local dist = #(pcoords - loc.deliveryCoords) 
             local deliveryPed = nil
-            if deliveryPed and deliveryPedSpawned then
-                DebugPrint("Delivery ped already spawned, checking distance.")
-            elseif not delieveryPed and not deliveryPedSpawned then 
-                local deliveryPed = CreatePedModel("a_m_m_business_01", loc.deliveryPed.coords, loc.deliveryPed.heading)
+            if not delieveryPed and not deliveryPedSpawned then 
+                deliveryPed = CreatePedModel("a_m_m_business_01", loc.deliveryPed.coords, loc.deliveryPed.heading)
                 deliveryPedSpawned = true 
             end
             if dist < 25.0 then
@@ -197,6 +188,8 @@ CreateThread(function()
     end
 end)
 
+
+--Ensure that if the player is carrying a box, they animation is properly playing and controls are disabled
 CreateThread(function()
     while true do 
         if IsCarryingBox() then 
@@ -205,6 +198,7 @@ CreateThread(function()
             DisableControlAction(0, 25, true) 
             DisableControlAction(0, 22, true)
         else
+            -- Check less often when not carrying a box
             Wait(500)
             EnableControlAction(0, 24, true)
             EnableControlAction(0, 25, true)
