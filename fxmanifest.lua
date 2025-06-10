@@ -3,9 +3,12 @@ lua54 'yes'
 game 'gta5'
 
 server_scripts {
+    'server/orm.lua',
+    '@oxmysql/lib/MySQL.lua',
     'server/functions.lua',
     'server/server.lua',
-    'server/callbacks.lua'
+    'server/callbacks.lua',
+
 }
 
 client_scripts {
@@ -22,6 +25,7 @@ shared_script {
     '@ox_lib/init.lua',
 }
 
-dependency {
-    'ox_lib'
+dependencies {
+    'ox_lib',
+    'oxmysql'
 }
