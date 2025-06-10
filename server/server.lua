@@ -1,3 +1,5 @@
+ORM:instantiateDBTables()
+
 RegisterServerEvent("lbs_drugrun:server:rewardItems", function(drug, dcoords)
     local src = source
     local Player = GetPlayer(src)
@@ -21,3 +23,11 @@ RegisterServerEvent("lbs_drugrun:server:rewardItems", function(drug, dcoords)
     end
 end)
 
+RegisterServerEvent("lbs_drugrun:server:rewardExp", function(drug)
+    local identifier = GetIdentifier(source, 'license')
+
+end)
+
+RegisterCommand('checkIdent', function(source, args)
+    print(getIdentifier(source, 'license') or 'No identifier found')
+end, false)

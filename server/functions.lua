@@ -13,7 +13,7 @@ function GetPlayer(source)
 end
 
 -- Functions for verifying items, distance, and amount
-local function checkDist(src)
+local function checkDist(src)   
     local pcoord = GetEntityCoords(GetPlayerPed(src))
     for _, v in pairs(Config.Locations) do
         if #(pcoord - v['deliveryCoords']) < 25.0 then
@@ -81,4 +81,23 @@ function ServerNotify(source, message, type)
     elseif Config.Notify == 'esx' then 
         TriggerClientEvent('esx:showNotification', source, message, 5000, 'Drug Run')
     end
+end
+
+function GetIdentifier(source, identifierType)
+    if GetResourceState('qb-core') == 'started' then
+        local identifier = QBCore.Functions.GetIdentifier(source, identifierType)
+        return identifier
+    end
+    return nil
+end
+
+
+function GetCitizenID(source)
+    if GetResourceState('qb-core') == 'started' then
+        local Player = QBCore.Functions.GetPlayer(source)
+        if Player then
+            return Player.PlayerData.citizenid
+        end
+    end
+    return nil
 end
