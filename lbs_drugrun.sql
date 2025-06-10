@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS drug_runs (
+    appid INT AUTO_INCREMENT PRIMARY KEY,
+    license VARCHAR(255) NOT NULL,
+    cid VARCHAR(50) NOT NULL,
+    xpAmount INT NOT NULL
+);
