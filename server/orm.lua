@@ -22,15 +22,16 @@ function ORM.instantiateDBTables()
 end
 
 
-function ORM.updateXPAmount(license, xpAmount)
+function ORM.AddXPAmount(license, cid, xpAmount)
     local result = MySQL.query.await("SELECT xpAmount FROM drug_runs WHERE license = ?", {license})
+
     
     if result[1] then
         MySQL.update.await("UPDATE drug_runs SET xpAmount = xpAmount + ? WHERE license = ?", {xpAmount, license})
         DebugPrint(('XP amount updated for license %s to %d'):format(license, xpAmount))
         return true
     elseif not result[1] then
-        MySQL.insert.await("INSERT INTO drug_runs (license, xpAmount) VALUES (?, ?)", {license, xpAmount})
+        MySQL.insert.await("INSERT INTO drug_runs (license, cid, xpAmount) VALUES (?, ?, ?)", {license, cid ,xpAmount})
         DebugPrint(('XP amount initialized for license %s with %d'):format(license, xpAmount))
         return true
     end
