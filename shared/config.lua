@@ -7,11 +7,6 @@ Config.Inventory = 'qb'                             -- 'qb', 'ox'
 
 Config.EnableDebug = true
 
--- Set the cooldown time in seconds
--- 60 * 5 = 300 seconds = 5 minutes
--- 60 * 60 * 2 = 7200 seconds = 2 hours
-Config.Cooldown = 60
-
 Config.PedLocations = {
     {loc = vector3(2486.95, 3726.88, 43.92), heading = 37.01},
     {loc = vector3(1394.44,1141.72,114.61), heading = 88.73},
@@ -49,24 +44,21 @@ Config.Locations = {
     },
 }
 
-Config.MissionOptions = {
-    boxesToPickUp = 1,                              -- Number of boxes to pick up
-    truckModel = 'mule',                            -- Truck model to spawn
-}
 
+---@param label string: the in-game label for the drug
+---@param value string: the internal value used in the inventory system
+---@param min_exp number: the minimum experience given for running this drug
+---@param max_exp number: the maximum experience given for running this drug
+---@param maxAmount number: the maximum amount of this drug that can be carried
 Config.DrugOptions = {
-    {label='Weed', value='weed_brick'},
-    {label='Cocaine', value='cokebaggy'},
-    {label='Meth', value='meth'},
-    {label='Oxy', value='oxy'},
-    {label='Diddy Oil', value='diddy_oil'},
+    Weed = {value='weed_brick', min_exp = 0, max_exp = 100, maxAmount = 5},
+    Cocaine = {value='cokebaggy', min_exp = 0, max_exp = 100, maxAmount = 5},
+    Meth = {value='meth', min_exp = 0, max_exp = 100, maxAmount = 5},
+    Oxy = {value='oxy', min_exp = 0, max_exp = 100, maxAmount = 5},
 }
 
--- Set the maximum amount of drug reward items to be given
-Config.MaxDrugRewardAmount = 5
-
--- Add or remove mission rewards here. Ensure that the keys match the items in your inventory system.
+-- Add or remove misc mission rewards here. Ensure that the keys match the items in your inventory system.
 Config.MissionRewards = {
-    cash = 500,                                     -- ITEM  = REWARD AMOUNT
+    cash = 500,             -- ITEM  = REWARD AMOUNT
     water_bottle = 1,   
 }
