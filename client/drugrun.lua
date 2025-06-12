@@ -16,18 +16,12 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
         DebugPrint("No Drug Type Provided")
         return
     end
-
-    if missionActive then 
-        DebugPrint("Mission is already active, cannot start a new one.")
-        ClientNotify("You are already on a mission.", 'error')
-        return
-    end
     
     missionActive = true
     ClientNotify("Starting " .. GetLabel(drugType) .. ' run mission!', 'info')
 
     -- Request model and ensure it's loaded
-    local vehicleHash = GetHashKey(Config.MissionOptions.truckModel)
+    local vehicleHash = GetHashKey('mule')
     RequestModel(vehicleHash)
     while not HasModelLoaded(vehicleHash) do
         Wait(1)
@@ -67,7 +61,6 @@ RegisterNetEvent('lbs_drugrun:client:startMission', function(drug)
                     ClientNotify("You have already picked up all the boxes.", 'error')
                     return
                 end
-
             end,
         }
     })
@@ -170,7 +163,9 @@ CreateThread(function()
                                 DebugPrint("All boxes delivered, mission complete.")
                                 ClientNotify("You have delivered all the boxes. Mission complete!", 'success')
                                 RemoveBlip(deliveryBlip)
-                                TriggerServerEvent('lbs_drugrun:server:rewardItems', drugType, loc.deliveryCoords)
+                                print('Rewarding Items')
+                                print('Drug Type: ' .. drugType)
+                                TriggerServerEvent('lbs_drugrun:server:missionReward', drugType, loc.deliveryCoords)
                                 CleanupMission()
                                 lib.hideTextUI()
                                 return
