@@ -1,7 +1,5 @@
 ORM = {}
 
-
-
 function ORM.instantiateDBTables()
     local result = MySQL.query.await("SELECT 1 FROM information_schema.tables WHERE TABLE_NAME = ?", {"drug_runs"})
     print(result[1])
@@ -20,7 +18,6 @@ function ORM.instantiateDBTables()
         return
     end
 end
-
 
 function ORM.AddXPAmount(license, cid, xpAmount)
     local result = MySQL.query.await("SELECT xpAmount FROM drug_runs WHERE license = ?", {license})
