@@ -1,8 +1,23 @@
 ORM:instantiateDBTables()
 
+local function GetDrugDetails(drug)
+    for k, v in pairs(Config.DrugOptions) do 
+        print('Checkings values')
+        print('K: ' .. k)
+        print('Drug: ' .. drug)
+        print('V.value: ' .. v.value)
+        if v.value == drug then 
+            return v.min_exp, v.max_exp, v.maxAmount 
+        end
+    end
+    return nil, nil, nil
+end
+
+
 RegisterServerEvent("lbs_drugrun:server:missionReward", function(drug, dcoords)
+    print('server event: lbs_drugrun:server:missionReward')
+    print(drug)
     local src = source
-    local xp = math.random(1, 100)
     local Player = GetPlayer(src)
     local ident = GetIdentifier(src, 'license')
     local cid = GetCitizenID(src)
@@ -13,15 +28,24 @@ RegisterServerEvent("lbs_drugrun:server:missionReward", function(drug, dcoords)
     DebugPrint(('Attempting to reward items to %d for drug run.'):format(src))
     local pcoords = GetEntityCoords(GetPlayerPed(src))
 
-
     if #(pcoords - dcoords) > 25.0 then 
         DebugPrint(('Player %d is too far from the delivery coordinates.'):format(src))
         return
     end
-    local drugRewardAmount = math.random(1, Config.MaxDrugRewardAmount)
-    AddItem(src, drug, drugRewardAmount)
-    ServerNotify(src, ('You have received %d x %s as a reward for the drug run.'):format(drugRewardAmount, drug), 'success')
-    DebugPrint(('Player %d has received %d x %s as a reward for the drug run.'):format(src, drugRewardAmount, drug))
+
+    print("finding items")
+    local minXP, maxXP, maxAmount = GetDrugDetails(drug)
+    if not minXP or not maxXP or not maxAmount then
+        ServerNotify(src, ('Invalid drug type: %s'):format(drug), 'error')
+        return
+    end
+
+    local xp = math.random(minXP, maxXP)
+    local amount = math.random(1, maxAmount)
+
+    AddItem(src, drug, amount)
+    ServerNotify(src, ('You have received %d x %s as a reward for the drug run.'):format(amount, drug), 'success')
+    DebugPrint(('Player %d has received %d x %s as a reward for the drug run.'):format(src, amount, drug))
 
     for k, v in pairs(Config.MissionRewards) do
         AddItem(src, k, v)
